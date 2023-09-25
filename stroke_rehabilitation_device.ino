@@ -12,10 +12,10 @@ volatile Servo servo1;  // creates a motor object. Naming it servo1 by conventio
 
 volatile bool is_system_running = false;
 
-int RubberPin = A2;                // input pin that reads the voltage drop across the rubber wire, can be any of the analog pins A0-A5
-const int Resistor = 3300;         // TO CHANGE: this is the fixed value of the other resistor in the voltage divider circuit
-const int sample_interval = 1000;  // TO CHANGE: interval of time between resistance measurements (in milliseconds)
-int motor_speed = 94;              //Initial speed is 0 (stopped)
+int RubberPin = A2;               
+const int Resistor = 3300;         
+const int sample_interval = 1000;  
+int motor_speed = 94;   
 
 float R_voltage;     // measured voltage drop value of the rubber wire
 float R_resistance;  // calculated resistance value of the rubber wire
@@ -77,15 +77,15 @@ void loop() {
   if (motor_speed == 92) {
     analogWrite(ledPinRed, 0);
     analogWrite(ledPinGreen, 255);
-    analogWrite(ledPinBlue, 0);  // green
+    analogWrite(ledPinBlue, 0); 
   } else if (motor_speed == 90) {
     analogWrite(ledPinRed, 255);
     analogWrite(ledPinGreen, 0);
-    analogWrite(ledPinBlue, 255);  // purple
+    analogWrite(ledPinBlue, 255);  
   } else if (motor_speed == 88) {
     analogWrite(ledPinRed, 255);
     analogWrite(ledPinGreen, 0);
-    analogWrite(ledPinBlue, 0);  // red
+    analogWrite(ledPinBlue, 0); 
   }
 
   is_system_running = digitalRead(START_BUTTON_PIN);
@@ -100,10 +100,10 @@ void loop() {
 
 void set_start_button_pressed_to_false() {
   if (motor_is_rotating_cw == true) {
-    totalTime = millis() - startTime;  // + (millis() - cw_startTime); // if cw, add to the total time
+    totalTime = millis() - startTime;  // if cw, add to the total time
   }
   if (motor_is_rotating_cw == false) {
-    totalTime = 6000 - (millis() - startTime);  //totalTime - (millis() - ccw_startTime); //if ccw, remove from total time
+    totalTime = 6000 - (millis() - startTime);   //if ccw, remove from total time
   }
   is_system_running = false;
   servo1.write(94);
@@ -127,13 +127,13 @@ void move_mtr(String direction, int input_speed, int rotationSeconds) {
 void motor_protocol(int inter_cycle_delay) {
   servo1.attach(pinNumber);
 
-  totalTime = 0;  //Assume its always starting at the original position (obviously)
+  totalTime = 0;  
   motor_is_rotating_cw == true;
   startTime = millis();
   move_mtr("ccw", motor_speed, 2000);
   if (!is_system_running) {
     move_mtr("cw", motor_speed, totalTime);
-    return;  //If it got interrupted while cw rotation, move back and exit the function immediately (do not even go to the next part)
+    return; 
   }
   read_and_calculate_resistance();
   delay(inter_cycle_delay);
@@ -143,16 +143,16 @@ void motor_protocol(int inter_cycle_delay) {
   if (!is_system_running) {
     move_mtr("cw", motor_speed, 6000 - totalTime);
     delay(inter_cycle_delay);
-    return;  //If it got interrupted while ccw rotation, move back and exit the function immediately (do not even go to the next part)
+    return; 
   }
   delay(inter_cycle_delay);
 }
 
 void read_and_calculate_resistance() {
   // process the input values
-  R_voltage = analogRead(RubberPin) * (5.0 / 1023.0);              // analogRead() reads the voltage
+  R_voltage = analogRead(RubberPin) * (5.0 / 1023.0);             
   R_resistance = (Resistor * R_voltage / (5 - R_voltage))-1400;  // voltage divider equation re-arranged to find R2, R2 = R1*Vout/(Vin - Vout), where R2 is the rubber wire
-  sample_time = sample_interval * i++ / 1000;                      // computes the sample time the sample is taken at (in seconds)
+  sample_time = sample_interval * i++ / 1000;  // computes the sample time the sample is taken at (in seconds)
   force = exp((R_resistance - 945.68) / 206.59);
   displacement = (force - 0.5) / 132;
 
